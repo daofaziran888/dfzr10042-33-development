@@ -738,6 +738,26 @@ class TestFullPipeline:
         assert "flow9_report" in result
         assert "flow10_ranking" in result
 
+    def test_region_flow_runs_when_region_orders_present(
+        self, sample_metrics, sample_dimensions, sample_events,
+        sample_experiments, sample_attribution_models,
+        sample_anomaly_rules, sample_segments, sample_ranking_boards,
+        sample_joins, sample_report_templates, sample_data,
+    ):
+        from app.region_samples import scenario_orders
+        enriched = dict(sample_data)
+        enriched["region_orders"] = scenario_orders()
+        result = run_full_analysis_pipeline(
+            metrics=sample_metrics, dimensions=sample_dimensions, events=sample_events,
+            experiments=sample_experiments, attribution_models=sample_attribution_models,
+            anomaly_rules=sample_anomaly_rules, segments=sample_segments,
+            ranking_boards=sample_ranking_boards, joins=sample_joins,
+            report_templates=sample_report_templates, sample_data=enriched,
+        )
+        flow = result["flow11_region_publication"]
+        assert flow["report"]["totals"] == {"order_count": 8, "amount": 1000.0}
+        assert flow["decision"]["pending_confirmations"] == ["北一区"]
+
     def test_full_pipeline_is_deterministic(self, sample_metrics, sample_dimensions, sample_events,
                                             sample_experiments, sample_attribution_models,
                                             sample_anomaly_rules, sample_segments, sample_ranking_boards,

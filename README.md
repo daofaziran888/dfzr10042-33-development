@@ -73,6 +73,58 @@ npm run dev
 | 数据集关联 | `dataset_join` | 关联方案 | 方案编号、主数据集、关联数据集 |
 | 报告生成 | `report_builder` | 报告模板 | 模板编号、报告名称、引用指标 |
 
+## 地区交易低样本发布门槛
+
+地区下钻与外部报告之间新增了一层发布门槛，核心实现在
+`backend/app/region_publication.py`，样例订单在 `backend/app/region_samples.py`。
+
+规则：
+
+1. **先按订单号去重，再按有效订单计数。** 有效订单采用白名单状态
+   （`valid/paid/completed/...` 及对应中文），取消、退款、无效、未知状态一律不计；
+   金额缺失或为负同样不计。重复订单（含重送）不会推进任何省或区域的门槛。
+2. **省级与上级区域门槛分别核定。** `province_min_orders` 决定省份能否单独成项，
+   `region_min_orders` 决定区级合计是否具备汇总资格，二者互不替代。
+3. **省与区资格冲突时由负责人确认。** 区域内存在低样本省份、但区合计达到区级门槛时，
+   该区进入 `pending_confirmations`，本轮默认不披露；只有显式批准
+   （`approved_regions`）才按区级汇总替代该区所有省明细。
+4. **外部报告只按已允许的地区集合实算。** 报告行、`totals`、`category_totals`、
+   `region_totals` 全部由已披露行重算；未披露项只保留名称和原因，不携带任何指标。
+   同一区域不会同时出现区合计与省明细，避免用“合计 − 明细”反推未授权数值；
+   默认接口视图也不回传有效订单总数、输入行数等可反推的计数。
+5. **发布幂等。** 同一 `scope_id` 并发发布只落一条记录；重送已有订单、补送已取消订单
+   仍命中同一指纹。同一范围换数据或改批准范围会返回 `409`。
+
+示例接口（后端启动后）：
+
+```bash
+# 默认核定：只有丙（8 笔）入算，北一区待确认
+curl 'http://127.0.0.1:8000/api/region-publication/scenario'
+
+# 批准北一区按区级汇总（6 笔），省明细不再出现
+curl --get --data-urlencode 'approved_region=北一区' \
+     'http://127.0.0.1:8000/api/region-publication/scenario'
+
+# 只读核定 / 幂等发布 / 发布记录
+curl -X POST 'http://127.0.0.1:8000/api/region-publication/evaluate' -H 'content-type: application/json' -d '{"orders":[...]}'
+curl -X POST 'http://127.0.0.1:8000/api/region-publication/scenario/publish' -H 'content-type: application/json' -d '{"scope_id":"north-region-2026-11"}'
+curl 'http://127.0.0.1:8000/api/region-publication/records'
+```
+
+`include_metrics=true` 只用于内部核对全量省级结果，外部报告不请求该参数。
+前端页面 `/region-publication` 复用同一接口展示发布报告与未披露项。
+
+生成可直接核对的产物：
+
+```bash
+cd backend
+.venv/bin/python scripts/generate_region_report.py            # 写入 backend/reports/
+.venv/bin/python scripts/generate_region_report.py --with-resend
+```
+
+产物 `reports/region_publication.md` 包含省级/区级实际结果、默认与批准两种发布报告、
+字段核对结论和幂等核对；`region_publication.json` 为同内容的机器可读版本。
+
 ## 约定
 
 - 全部模块共享`frontend/src/views/WorkbenchView.vue|tsx`和一套资源路由。

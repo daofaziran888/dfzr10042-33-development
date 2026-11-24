@@ -12,6 +12,9 @@
 9. dataset_join -> olap_query -> report_builder
 10. ranking_board -> metric_def
 
+另有流 11：dimension_def -> drill_path -> report_builder 的地区低样本发布门槛，
+在传入 ``region_orders`` 时启用。
+
 所有管道函数都是确定性纯函数，可直接用于测试。
 """
 from __future__ import annotations
@@ -44,6 +47,11 @@ from app.models import (
     ReportTemplate,
     Segment,
     UserSegmentCompare,
+)
+from app.region_publication import (
+    RegionPublicationPolicy,
+    build_external_report,
+    evaluate_publication,
 )
 
 
@@ -651,6 +659,48 @@ def pipeline_ranking_to_metric(
 
 
 # ============================================================
+# 流 11: dimension_def -> drill_path -> report_builder（地区低样本门槛）
+# 地区下钻 -> 省级/区级发布核定 -> 外部报告
+# ============================================================
+
+def pipeline_region_publication(
+    orders: list[dict[str, Any]],
+    dimensions: list[DimensionDef],
+    report_templates: list[ReportTemplate],
+    *,
+    scope_id: str = "region-publication",
+    policy: RegionPublicationPolicy | None = None,
+    approved_regions: list[str] | None = None,
+) -> dict[str, Any]:
+    """地区下钻到外部报告的低样本发布管道。
+
+    1. 取地区维度（优先 ``region`` 字段）与报告模板
+    2. 按有效订单去重聚合到省和上级区域
+    3. 分别核定省级与区级发布资格
+    4. 只按已允许的地区集合实算报告行与合计
+    """
+    region_dimension = next(
+        (dim for dim in dimensions if dim.field_source == "region"),
+        dimensions[0] if dimensions else None,
+    )
+    decision = evaluate_publication(
+        orders,
+        scope_id=scope_id,
+        policy=policy or RegionPublicationPolicy(),
+        approved_regions=approved_regions or [],
+    )
+    report = build_external_report(orders, decision)
+
+    return {
+        "pipeline": "dimension_def -> drill_path -> report_builder (region gate)",
+        "region_dimension": region_dimension.dimension_name if region_dimension else None,
+        "report_template": report_templates[0].report_name if report_templates else None,
+        "decision": decision.to_dict(),
+        "report": report,
+    }
+
+
+# ============================================================
 # 全量跨模块集成管道
 # ============================================================
 
@@ -734,6 +784,16 @@ def run_full_analysis_pipeline(
     if ranking_boards:
         all_results["flow10_ranking"] = pipeline_ranking_to_metric(
             ranking_boards, sample_data.get("ranking_data", {})
+        )
+
+    # 流 11：地区低样本发布门槛（示例数据里没有地区订单时跳过）
+    region_orders = sample_data.get("region_orders")
+    if region_orders:
+        all_results["flow11_region_publication"] = pipeline_region_publication(
+            region_orders,
+            dimensions,
+            report_templates,
+            scope_id="full-pipeline",
         )
 
     return all_results

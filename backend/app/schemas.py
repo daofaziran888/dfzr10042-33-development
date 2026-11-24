@@ -29,3 +29,26 @@ class EntryPayload(BaseModel):
 class ActionPayload(BaseModel):
     action: str
     remark: str | None = None
+
+
+class RegionPolicyPayload(BaseModel):
+    """省级与上级区域分别核定的发布门槛。"""
+
+    province_min_orders: int = Field(default=5, ge=1)
+    region_min_orders: int = Field(default=5, ge=1)
+
+
+class RegionPublicationPayload(BaseModel):
+    scope_id: str = Field(default="default", min_length=1, max_length=120)
+    orders: list[dict[str, Any]] = Field(default_factory=list)
+    policy: RegionPolicyPayload = Field(default_factory=RegionPolicyPayload)
+    approved_regions: list[str] = Field(default_factory=list)
+    approved_provinces: list[dict[str, str]] = Field(default_factory=list)
+
+
+class RegionScenarioPayload(BaseModel):
+    scope_id: str = Field(default="north-region-2026-11", min_length=1, max_length=120)
+    with_resend: bool = False
+    province_min_orders: int = Field(default=5, ge=1)
+    region_min_orders: int = Field(default=5, ge=1)
+    approved_regions: list[str] = Field(default_factory=list)

@@ -1,0 +1,382 @@
+{
+  "input": {
+    "with_resend": false,
+    "row_count": 14,
+    "policy": {
+      "province_min_orders": 5,
+      "region_min_orders": 5
+    }
+  },
+  "province_results": [
+    {
+      "region": "北一区",
+      "province": "乙",
+      "order_count": 2,
+      "amount": 100.0
+    },
+    {
+      "region": "北一区",
+      "province": "甲",
+      "order_count": 4,
+      "amount": 400.0
+    },
+    {
+      "region": "北二区",
+      "province": "丙",
+      "order_count": 8,
+      "amount": 1000.0
+    }
+  ],
+  "region_results": [
+    {
+      "region": "北一区",
+      "order_count": 6,
+      "amount": 500.0,
+      "province_count": 2
+    },
+    {
+      "region": "北二区",
+      "order_count": 8,
+      "amount": 1000.0,
+      "province_count": 1
+    }
+  ],
+  "audit": {
+    "raw_rows": 14,
+    "unique_orders": 14,
+    "valid_orders": 14,
+    "duplicate_order_ids": [],
+    "invalid_order_ids": []
+  },
+  "default_decision": {
+    "scope_id": "north-region-2026-11",
+    "policy": {
+      "province_min_orders": 5,
+      "region_min_orders": 5
+    },
+    "provinces": [
+      {
+        "level": "province",
+        "region": "北一区",
+        "province": "乙",
+        "order_count": 2,
+        "amount": 100.0,
+        "eligible": false,
+        "allowed": false,
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "province",
+        "region": "北一区",
+        "province": "甲",
+        "order_count": 4,
+        "amount": 400.0,
+        "eligible": false,
+        "allowed": false,
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "province",
+        "region": "北二区",
+        "province": "丙",
+        "order_count": 8,
+        "amount": 1000.0,
+        "eligible": true,
+        "allowed": true,
+        "reason": "allowed"
+      }
+    ],
+    "regions": [
+      {
+        "level": "region",
+        "region": "北一区",
+        "order_count": 6,
+        "amount": 500.0,
+        "province_count": 2,
+        "eligible": true,
+        "has_under_threshold_provinces": true,
+        "conflict": true,
+        "approved": false,
+        "rollup_allowed": false,
+        "reason": "owner_confirmation_pending"
+      },
+      {
+        "level": "region",
+        "region": "北二区",
+        "order_count": 8,
+        "amount": 1000.0,
+        "province_count": 1,
+        "eligible": true,
+        "has_under_threshold_provinces": false,
+        "conflict": false,
+        "approved": false,
+        "rollup_allowed": false,
+        "reason": "province_detail_preferred"
+      }
+    ],
+    "allowed_provinces": [
+      {
+        "region": "北二区",
+        "province": "丙"
+      }
+    ],
+    "allowed_regions": [],
+    "pending_confirmations": [
+      "北一区"
+    ],
+    "audit": {
+      "raw_rows": 14,
+      "unique_orders": 14,
+      "valid_orders": 14,
+      "duplicate_order_ids": [],
+      "invalid_order_ids": []
+    }
+  },
+  "default_report": {
+    "scope_id": "north-region-2026-11",
+    "policy": {
+      "province_min_orders": 5,
+      "region_min_orders": 5
+    },
+    "rows": [
+      {
+        "level": "province",
+        "region": "北二区",
+        "label": "丙",
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    ],
+    "totals": {
+      "order_count": 8,
+      "amount": 1000.0
+    },
+    "category_totals": [
+      {
+        "level": "province",
+        "region": "北二区",
+        "label": "丙",
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    ],
+    "region_totals": {
+      "北二区": {
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    },
+    "included_regions": [
+      "北二区"
+    ],
+    "included_provinces": [
+      "丙"
+    ],
+    "pending_confirmations": [
+      "北一区"
+    ],
+    "suppressed": [
+      {
+        "level": "province",
+        "region": "北一区",
+        "label": "乙",
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "province",
+        "region": "北一区",
+        "label": "甲",
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "region",
+        "region": "北一区",
+        "label": "北一区",
+        "reason": "owner_confirmation_pending"
+      }
+    ],
+    "disclosure_guard": {
+      "region_and_province_exclusive": true,
+      "totals_recomputed_from_disclosed_rows": true,
+      "suppressed_metrics_included": false
+    }
+  },
+  "approved_north1_decision": {
+    "scope_id": "north-region-2026-11",
+    "policy": {
+      "province_min_orders": 5,
+      "region_min_orders": 5
+    },
+    "provinces": [
+      {
+        "level": "province",
+        "region": "北一区",
+        "province": "乙",
+        "order_count": 2,
+        "amount": 100.0,
+        "eligible": false,
+        "allowed": false,
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "province",
+        "region": "北一区",
+        "province": "甲",
+        "order_count": 4,
+        "amount": 400.0,
+        "eligible": false,
+        "allowed": false,
+        "reason": "below_province_threshold"
+      },
+      {
+        "level": "province",
+        "region": "北二区",
+        "province": "丙",
+        "order_count": 8,
+        "amount": 1000.0,
+        "eligible": true,
+        "allowed": true,
+        "reason": "allowed"
+      }
+    ],
+    "regions": [
+      {
+        "level": "region",
+        "region": "北一区",
+        "order_count": 6,
+        "amount": 500.0,
+        "province_count": 2,
+        "eligible": true,
+        "has_under_threshold_provinces": true,
+        "conflict": true,
+        "approved": true,
+        "rollup_allowed": true,
+        "reason": "region_rollup_approved"
+      },
+      {
+        "level": "region",
+        "region": "北二区",
+        "order_count": 8,
+        "amount": 1000.0,
+        "province_count": 1,
+        "eligible": true,
+        "has_under_threshold_provinces": false,
+        "conflict": false,
+        "approved": false,
+        "rollup_allowed": false,
+        "reason": "province_detail_preferred"
+      }
+    ],
+    "allowed_provinces": [
+      {
+        "region": "北二区",
+        "province": "丙"
+      }
+    ],
+    "allowed_regions": [
+      "北一区"
+    ],
+    "pending_confirmations": [],
+    "audit": {
+      "raw_rows": 14,
+      "unique_orders": 14,
+      "valid_orders": 14,
+      "duplicate_order_ids": [],
+      "invalid_order_ids": []
+    }
+  },
+  "approved_north1_report": {
+    "scope_id": "north-region-2026-11",
+    "policy": {
+      "province_min_orders": 5,
+      "region_min_orders": 5
+    },
+    "rows": [
+      {
+        "level": "region",
+        "region": "北一区",
+        "label": "北一区",
+        "order_count": 6,
+        "amount": 500.0
+      },
+      {
+        "level": "province",
+        "region": "北二区",
+        "label": "丙",
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    ],
+    "totals": {
+      "order_count": 14,
+      "amount": 1500.0
+    },
+    "category_totals": [
+      {
+        "level": "region",
+        "region": "北一区",
+        "label": "北一区",
+        "order_count": 6,
+        "amount": 500.0
+      },
+      {
+        "level": "province",
+        "region": "北二区",
+        "label": "丙",
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    ],
+    "region_totals": {
+      "北一区": {
+        "order_count": 6,
+        "amount": 500.0
+      },
+      "北二区": {
+        "order_count": 8,
+        "amount": 1000.0
+      }
+    },
+    "included_regions": [
+      "北一区",
+      "北二区"
+    ],
+    "included_provinces": [
+      "丙"
+    ],
+    "pending_confirmations": [],
+    "suppressed": [
+      {
+        "level": "province",
+        "region": "北一区",
+        "label": "乙",
+        "reason": "rolled_up_into_region"
+      },
+      {
+        "level": "province",
+        "region": "北一区",
+        "label": "甲",
+        "reason": "rolled_up_into_region"
+      }
+    ],
+    "disclosure_guard": {
+      "region_and_province_exclusive": true,
+      "totals_recomputed_from_disclosed_rows": true,
+      "suppressed_metrics_included": false
+    }
+  },
+  "idempotency_check": {
+    "first_publish_created": true,
+    "resent_publish_created": false,
+    "same_fingerprint": true,
+    "record_count": 1,
+    "totals_before": {
+      "order_count": 8,
+      "amount": 1000.0
+    },
+    "totals_after_resend": {
+      "order_count": 8,
+      "amount": 1000.0
+    }
+  }
+}
